@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		81EA0F352D509D0900FFCDD6 /* VRMOVIE+.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VRMOVIE+.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8180B54D2D5756F60066BF10 /* VRMOVIE+.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "VRMOVIE+.app"; path = "/Users/mamedhaciyev/Desktop/Desktop/ATL Academy iOS kurs /TestApp/MyApps/VRMOVIE+/build/Debug-iphoneos/VRMOVIE+.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -46,16 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				81EA0F372D509D0900FFCDD6 /* VRMOVIE+ */,
-				81EA0F362D509D0900FFCDD6 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		81EA0F362D509D0900FFCDD6 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				81EA0F352D509D0900FFCDD6 /* VRMOVIE+.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -80,7 +71,7 @@
 			packageProductDependencies = (
 			);
 			productName = "VRMOVIE+";
-			productReference = 81EA0F352D509D0900FFCDD6 /* VRMOVIE+.app */;
+			productReference = 8180B54D2D5756F60066BF10 /* VRMOVIE+.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -108,7 +99,7 @@
 			mainGroup = 81EA0F2C2D509D0900FFCDD6;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 81EA0F362D509D0900FFCDD6 /* Products */;
+			productRefGroup = 81EA0F2C2D509D0900FFCDD6;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -150,7 +141,6 @@
 				INFOPLIST_FILE = "VRMOVIE+/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -178,7 +168,6 @@
 				INFOPLIST_FILE = "VRMOVIE+/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
