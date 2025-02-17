@@ -26,9 +26,32 @@ class StartController: UIViewController {
         return imageView
     }()
     
+    private let viewModel: StartViewModel
+    
+    init(viewModel: StartViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        configureGestureRecognizer()
         setupUI()
+    }
+    
+    fileprivate func configureGestureRecognizer() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(gestureClicked))
+        view.addGestureRecognizer(tap)
+        view.isUserInteractionEnabled = true
+    }
+    
+    @objc private func gestureClicked() {
+        viewModel.showRegister()
     }
     
     private func setupUI() {
@@ -44,9 +67,8 @@ class StartController: UIViewController {
             
             logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             logoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            logoImageView.widthAnchor.constraint(equalToConstant: 250),
+            logoImageView.widthAnchor.constraint(equalToConstant: 240),
             logoImageView.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
-    
 }

@@ -10,19 +10,20 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    private var coordinator: AppCoordinator?
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let newScene = (scene as? UIWindowScene) else { return }
         
-        let newWindow = UIWindow(windowScene: newScene)
-        
-        let controller = StartController()
-        
-        let navigationController = UINavigationController(rootViewController: controller)
-        newWindow.rootViewController = navigationController
-        
-        window = newWindow
+        let tabBarController = TabBarController()
+        let navigationController = UINavigationController(rootViewController: tabBarController) // 👈 Düzəliş
+
+        coordinator = AppCoordinator(navigationController: navigationController) // 👈 Artıq səhv verməyəcək
+        coordinator?.start()
+
+        window = UIWindow(windowScene: newScene)
+        window?.rootViewController = navigationController // 👈 NavigationController göstəririk
         window?.makeKeyAndVisible()
     }
 
