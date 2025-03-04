@@ -10,9 +10,7 @@ import UIKit.UINavigationController
 
 final class HomeCoordinator: Coordinator {
     var parentCoordinator: Coordinator?
-    
     var children: [Coordinator] = []
-    
     var navigationController: UINavigationController
     
     init(navigationController: UINavigationController) {
@@ -20,11 +18,26 @@ final class HomeCoordinator: Coordinator {
     }
     
     func start() {
-        
-        _ = HomeViewController(categoryCollectionViews: [], headerViews: [])
-        guard let controller = HomeViewController(coder: .init()) else { return }
+        let controller = HomeViewController(viewModel: .init(navigation: self))
         showController(vc: controller)
-        
+    }
+}
+
+extension HomeCoordinator: HomeNavigation {
+    func showAllItems(listType: HomeListType) {
+        let vc = SeeAllItemsController(viewModel: .init(listType: listType, navigation: self))
+        vc.hidesBottomBarWhenPushed = true
+        showController(vc: vc)
+    }
+    
+    func showDetails(mediaType: MediaType, id: Int) {
+        let vc = MovieDetailController(viewModel: .init(mediaType: mediaType, id: id, navigation: self))
+        vc.hidesBottomBarWhenPushed = true
+        showController(vc: vc)
+    }
+    
+    func popController() {
+        popControllerBack()
     }
 }
 

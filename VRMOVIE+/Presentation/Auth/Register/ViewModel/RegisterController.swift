@@ -99,28 +99,54 @@ class RegisterController: UIViewController {
         return textField
     }()
     
-    private lazy var signUpButtonContainer: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "button")
-        imageView.contentMode = .scaleToFill
-        imageView.isUserInteractionEnabled = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
     
-    private lazy var signUpButtonImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "signup")
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
+    private let signUpButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Sign Up", for: .normal)
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 25
+        button.addTarget(self, action: #selector(signUpButtonTapped), for: .touchUpInside)
+        return button
     }()
+
+    
+    private let viewModel: RegisterViewModel
+    
+    init(viewModel: RegisterViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.hidesBackButton = true
         setupUI()
+        signUpButtonTapped()
     }
+    
+    @objc private func signUpButtonTapped() {
+        let fullName = nameTextField.text
+        let email = emailTextField.text
+        let password = passwordTextField.text
+        
+        if let errorMessage = viewModel.validateInputs(fullName: fullName, email: email, password: password) {
+            showAlert(message: errorMessage)
+        } else {
+            viewModel.registerUser(fullName: fullName!, email: email!, password: password!)
+        }
+    }
+
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Xəta", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
     
     private func setupUI() {
         view.addSubview(backgroundImageView)
@@ -130,8 +156,8 @@ class RegisterController: UIViewController {
         view.addSubview(nameTextField)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
-        view.addSubview(signUpButtonContainer)
-        signUpButtonContainer.addSubview(signUpButtonImage)
+        view.addSubview(signUpButton)
+        signUpButton.translatesAutoresizingMaskIntoConstraints = false
         
         
         NSLayoutConstraint.activate([
@@ -172,58 +198,13 @@ class RegisterController: UIViewController {
             passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             passwordTextField.heightAnchor.constraint(equalToConstant: 50),
-            
-            signUpButtonContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            signUpButtonContainer.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 40),
-            signUpButtonContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
-            signUpButtonContainer.heightAnchor.constraint(equalToConstant: 55),
-            
-            signUpButtonImage.centerXAnchor.constraint(equalTo: signUpButtonContainer.centerXAnchor),
-            signUpButtonImage.centerYAnchor.constraint(equalTo: signUpButtonContainer.centerYAnchor),
-            signUpButtonImage.widthAnchor.constraint(equalTo: signUpButtonContainer.widthAnchor, multiplier: 0.6),
-            signUpButtonImage.heightAnchor.constraint(equalTo: signUpButtonContainer.heightAnchor, multiplier: 0.6)
+                        
+            signUpButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
+            signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            signUpButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
-    
-    @objc private func handleRegister() {
-        
-        guard let username = nameTextField.text, !username.isEmpty,
-              let email = emailTextField.text, isValidEmail(email),
-              let password = passwordTextField.text, password.count >= 8 else {
-            showAlert(message: "Bütün məlumatları düzgün doldurun!")
-            return
-        }
-        
-        func isValidEmail(_ email: String) -> Bool {
-            let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}$"
-            let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
-            return emailPredicate.evaluate(with: email)
-        }
-
-        
-        
-        if users.contains(where: { $0.username == username || $0.email == email }) {
-            showAlert(message: "Bu istifadəçi və ya email artıq mövcuddur!")
-            return
-        }
-        
-       
-        let newUser = User(username: username, email: email, password: password)
-        users.append(newUser)
-        
-        showAlert(message: "Qeydiyyat uğurla tamamlandı!") { [weak self] in
-            self?.navigationController?.popViewController(animated: true)
-        }
-    }
-    
-    private func showAlert(message: String, completion: (() -> Void)? = nil) {
-        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Bağla", style: .cancel) { _ in
-            completion?()
-        })
-        present(alert, animated: true)
-    }
-    
     
 }
 

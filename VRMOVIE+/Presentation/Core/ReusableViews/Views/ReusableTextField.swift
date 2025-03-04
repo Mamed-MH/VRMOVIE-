@@ -72,9 +72,19 @@ class ReusableTextField: UITextField {
     }
     
     private func configurePlaceholder() {
-        let attributes = [NSAttributedString.Key.baselineOffset : NSNumber(-2.0), .foregroundColor: placeholderColor.withAlphaComponent(0.4), .font: UIFont(name: placeholderFont, size: placeholderSize)!]
 
-        attributedPlaceholder = NSAttributedString(string: placeholderTitle, attributes: attributes)
+        if let font = UIFont(name: placeholderFont, size: placeholderSize) {
+            let attributes: [NSAttributedString.Key: Any] = [
+                .baselineOffset: -2.0,
+                .foregroundColor: placeholderColor.withAlphaComponent(0.4),
+                .font: font
+            ]
+
+            attributedPlaceholder = NSAttributedString(string: placeholderTitle, attributes: attributes)
+        } else {
+            print("Xəta: Font tapılmadı!")
+        }
+        
         layer.borderColor = borderColor.cgColor
         layer.borderWidth = borderWidth
         layer.cornerRadius = cornerRad

@@ -6,21 +6,24 @@
 //
 
 import UIKit
-final class HomeTabBarCoordinator : Coordinator {
-    
+
+final class HomeTabBarCoordinator: Coordinator {
     weak var parentCoordinator: Coordinator?
-    
     var children: [Coordinator] = []
-    
     var navigationController: UINavigationController
-    private let tabBarController = TabBarController()
+    private let window: UIWindow
     
+    private let tabBarController = TabBarController()
     private var homeCoordinator: HomeCoordinator?
-    private var favouriteCoordinator: FavouriteCoordinator?
+    private var favoriteCoordinator: FavoriteCoordinator?
+    private var searchCoordinator: SearchCoordinator?
+    private var profileCoordinator: ProfileCoordinator?
     
     init(
-        navigationController : UINavigationController
+        window: UIWindow,
+        navigationController: UINavigationController
     ) {
+        self.window = window
         self.navigationController = navigationController
     }
     
@@ -29,51 +32,77 @@ final class HomeTabBarCoordinator : Coordinator {
     }
     
     deinit {
-        print(#function)
+        print("tabbar")
     }
     
     private func initializeHomeTabBar() {
-        //MARK: Create the TabBar item for TabBar.
         let homeNavigationController = UINavigationController()
         homeCoordinator = HomeCoordinator(navigationController: homeNavigationController)
-        // we want to home coordinator connected to the App Coordinator, because the HomeTabBar coordinator only serves as a container.
         homeCoordinator?.parentCoordinator = parentCoordinator
-        // Setup for home tab
+        
+        let favoriteNavigationController = UINavigationController()
+        favoriteCoordinator = FavoriteCoordinator(navigationController: favoriteNavigationController)
+        favoriteCoordinator?.parentCoordinator = parentCoordinator
+        
+        let searchNavigationController = UINavigationController()
+        searchCoordinator = SearchCoordinator(navigationController: searchNavigationController)
+        searchCoordinator?.parentCoordinator = parentCoordinator
+        
+        let profileNavigationController = UINavigationController()
+        profileCoordinator = ProfileCoordinator(window: window, navigationController: profileNavigationController)
+        profileCoordinator?.parentCoordinator = parentCoordinator
+        
         let homeItem = UITabBarItem()
-        homeItem.title = "Home"
         homeItem.image = UIImage(systemName: "house")
         homeItem.selectedImage = UIImage(systemName: "house.fill")
         homeNavigationController.tabBarItem = homeItem
+        homeNavigationController.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        homeNavigationController.navigationBar.shadowImage = UIImage()
         
-        let favNavController = UINavigationController()
-        favouriteCoordinator = FavouriteCoordinator(navigationController: favNavController)
-        favouriteCoordinator?.parentCoordinator = parentCoordinator
+        let favoriteItem = UITabBarItem()
+        favoriteItem.image = UIImage(systemName: "heart")
+        favoriteItem.selectedImage = UIImage(systemName: "heart.fill")
+        favoriteNavigationController.tabBarItem = favoriteItem
         
-        // Setup for fav tab
-        let favItem = UITabBarItem()
-        favItem.title = "Favourite"
-        favItem.image = UIImage(systemName: "heart")
-        favItem.selectedImage = UIImage(systemName: "heart.fill")
-        favNavController.tabBarItem = favItem
+        let searchItem = UITabBarItem()
+        searchItem.image = UIImage(systemName: "magnifyingglass")
+        searchItem.selectedImage = UIImage(systemName: "magnifyingglass")
+        searchNavigationController.tabBarItem = searchItem
+        
+        let profileItem = UITabBarItem()
+        profileItem.image = UIImage(systemName: "person")
+        profileItem.selectedImage = UIImage(systemName: "person.fill")
+        profileNavigationController.tabBarItem = profileItem
         
         tabBarController.viewControllers = [
             homeNavigationController,
-            favNavController
+            searchNavigationController,
+            favoriteNavigationController,
+            profileNavigationController
         ]
         
-        navigationController.pushViewController(tabBarController, animated: true)
-//        navigationController.setNavigationBarHidden(false, animated: true)
+        navigationController.setViewControllers([tabBarController], animated: false)
+        navigationController.setNavigationBarHidden(true, animated: false)
         
-        // Add the coordinator into parent's child
-        parentCoordinator?.children.append(
+        parentCoordinator?.children.append (
             homeCoordinator ?? HomeCoordinator(navigationController: UINavigationController())
         )
         
-        parentCoordinator?.children.append(
-            favouriteCoordinator ?? FavouriteCoordinator(navigationController: UINavigationController())
+        parentCoordinator?.children.append (
+            favoriteCoordinator ?? FavoriteCoordinator(navigationController: UINavigationController())
+        )
+        
+        parentCoordinator?.children.append (
+            searchCoordinator ?? SearchCoordinator(navigationController: UINavigationController())
+        )
+        
+        parentCoordinator?.children.append (
+            profileCoordinator ?? ProfileCoordinator(window: window, navigationController: UINavigationController())
         )
         
         homeCoordinator?.start()
-        favouriteCoordinator?.start()
+        favoriteCoordinator?.start()
+        profileCoordinator?.start()
+        searchCoordinator?.start()
     }
 }

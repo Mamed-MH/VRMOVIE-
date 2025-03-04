@@ -37,7 +37,16 @@ class ReusableButton: UIButton {
     }
     
     private func configureButton() {
-        setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont(name: titleFont, size: titleSize)!]), for: .normal)
+        if let font = UIFont(name: titleFont, size: titleSize) {
+            let attributedTitle = NSAttributedString(string: title, attributes: [.font: font])
+            setAttributedTitle(attributedTitle, for: .normal)
+        } else {
+            print("Warning: Font '\(titleFont)' not found. Using system font instead.")
+            let fallbackFont = UIFont.systemFont(ofSize: titleSize)
+            let attributedTitle = NSAttributedString(string: title, attributes: [.font: fallbackFont])
+            setAttributedTitle(attributedTitle, for: .normal)
+        }
+
         setTitleColor(titleColor, for: .normal)
         backgroundColor = bgColor
         layer.cornerRadius = cornerRad

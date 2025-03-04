@@ -7,201 +7,531 @@
 
 import UIKit
 
-class HomeViewController: UIViewController {
-    private lazy var backgroundImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "background")
-        imageView.contentMode = .scaleAspectFill
-        imageView.alpha = 1.0
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-    
-    private lazy var collectionView: UICollectionView = {
-        let layout = createCompositionalLayout()
+enum Time: String {
+    case week
+    case day
+}
+
+enum MovieListType {
+    case nowPlaying
+    case popular
+    case topRated
+    case upcoming
+}
+
+enum TvShowListType {
+    case airingToday
+    case onTheAir
+    case topRated
+    case popular
+}
+
+enum HomeListType {
+    case movie(MovieListType)
+    case tvShow(TvShowListType)
+}
+
+final class HomeViewController: BaseViewController {
+    private(set) lazy var listCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 12
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .clear
-        collectionView.register(MovieCell.self, forCellWithReuseIdentifier: "MovieCell")
-        collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
-        collectionView.register(SectionHeaderView.self,
-                              forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                              withReuseIdentifier: "HeaderView")
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.register(cell: TitleImageCell.self)
+        collectionView.register(cell: TrendingTitleCell.self)
+        collectionView.register(cell: TitlesSwitchSegmentCell.self)
+        collectionView.register(header: ListSectionHeader.self)
+        collectionView.register(header: TrendingSegmentHeader.self)
+        collectionView.backgroundColor = .clear
+        collectionView.refreshControl = refreshControl
         return collectionView
     }()
     
-    private let viewModel = HomeViewModel()
-    private var categoryCollectionViews: [UICollectionView] = []
-    private var headerViews: [SectionHeaderView] = []
+    private lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(reloadPage), for: .valueChanged)
+        return refreshControl
+    }()
     
-
-    init(categoryCollectionViews: [UICollectionView], headerViews: [SectionHeaderView]) {
-        self.categoryCollectionViews = categoryCollectionViews
-        self.headerViews = headerViews
+    private lazy var loadingView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView(style: .large)
+        view.color = .white
+        view.tintColor = .white
+        view.hidesWhenStopped = true
+        view.backgroundColor = .backgroundMain
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let viewModel: HomeViewModel?
+    private let layout: HomeCollectionLayout
+    private var selectedSegmentBool: Bool = false
+    private var selectedTrendingSegmentTime: Time = .week
+    
+    init(viewModel: HomeViewModel) {
+        self.viewModel = viewModel
+        self.layout = HomeCollectionLayout()
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented. Use init(categoryCollectionViews:headerViews:) instead.")
+        fatalError("init(coder:) has not been implemented")
     }
-
+    
+    deinit {
+        viewModel?.requestCallback = nil
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        configureViewModel()
+        viewModel?.getTrendingMovies(time: selectedTrendingSegmentTime)
+        viewModel?.getNowPlayingMovies()
+        viewModel?.getPopularMovies()
+        viewModel?.getTopRatedMovies()
+        viewModel?.getUpcomingMovies()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
     }
     
-    private func setupUI() {
-        view.backgroundColor = .black
-        view.addSubview(backgroundImageView)
-        view.addSubview(collectionView)
-        
-        NSLayoutConstraint.activate([
-            backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
-            backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
-        
-        view.sendSubviewToBack(backgroundImageView)
-    }
     
-    private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
-        return UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
-            return self?.createSection(for: sectionIndex)
-        }
-    }
     
-    private func createSection(for sectionIndex: Int) -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                            heightDimension: .fractionalHeight(1))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-        
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.45),
-                                             heightDimension: .absolute(200))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
-        
-        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                              heightDimension: .absolute(50))
-        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize,
-                                                               elementKind: UICollectionView.elementKindSectionHeader,
-                                                               alignment: .top)
-        section.boundarySupplementaryItems = [header]
-        
-        return section
-    }
-}
+    override func configureView() {
+        configureNavigationBar()
+        view.backgroundColor = .backgroundMain
+        view.addSubViews(loadingView, listCollectionView)
+        view.bringSubviewToFront(loadingView)
 
-extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        if collectionView == self.collectionView {
-            return viewModel.sections.count
-        }
-        return 1
+        configureCompositionalLayout()
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == self.collectionView {
-            return 5
-        } else {
-            let sectionIndex = categoryCollectionViews.firstIndex(of: collectionView) ?? 0
-            return viewModel.sections[sectionIndex].categories.count
-        }
+    fileprivate func configureNavigationBar() {
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        navigationController?.navigationBar.tintColor = .primaryHighlight
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == self.collectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
-            cell.configure(with: "Movie \(indexPath.item + 1)")
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
-            let sectionIndex = categoryCollectionViews.firstIndex(of: collectionView) ?? 0
-            let section = viewModel.sections[sectionIndex]
-            let category = section.categories[indexPath.item]
-            let isSelected = viewModel.isSelectedCategory(at: sectionIndex, categoryIndex: indexPath.item)
-            cell.configure(with: category, isSelected: isSelected, sectionColor: section.color)
-            return cell
-        }
+    
+    override func configureConstraint() {
+        listCollectionView.anchor(
+            top: view.safeAreaLayoutGuide.topAnchor,
+            leading: view.leadingAnchor,
+            bottom: view.safeAreaLayoutGuide.bottomAnchor,
+            trailing: view.trailingAnchor,
+            padding: .init(top: 0, left: 0, bottom: 0, right: 0)
+        )
+        loadingView.fillSuperviewSafeAreaLayoutGuide()
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if kind == UICollectionView.elementKindSectionHeader {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                        withReuseIdentifier: "HeaderView",
-                                                                        for: indexPath) as! SectionHeaderView
-            let isActive = viewModel.getSelectedCategory(for: indexPath.section) >= 0
-            header.configure(with: viewModel.sections[indexPath.section].title, isActive: isActive)
-            
-            if categoryCollectionViews.count <= indexPath.section {
-                let categoryLayout = UICollectionViewFlowLayout()
-                categoryLayout.scrollDirection = .horizontal
-                categoryLayout.minimumInteritemSpacing = 10
-                
-                let categoryCV = UICollectionView(frame: .zero, collectionViewLayout: categoryLayout)
-                categoryCV.tag = indexPath.section
-                categoryCV.backgroundColor = .clear
-                categoryCV.showsHorizontalScrollIndicator = false
-                categoryCV.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
-                categoryCV.delegate = self
-                categoryCV.dataSource = self
-                categoryCV.translatesAutoresizingMaskIntoConstraints = false
-                
-                categoryCollectionViews.append(categoryCV)
-                header.addSubview(categoryCV)
-                
-                NSLayoutConstraint.activate([
-                    categoryCV.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 120),
-                    categoryCV.trailingAnchor.constraint(equalTo: header.trailingAnchor),
-                    categoryCV.centerYAnchor.constraint(equalTo: header.centerYAnchor),
-                    categoryCV.heightAnchor.constraint(equalToConstant: 30)
-                ])
-            }
-            
-            headerViews.append(header)
-            return header
-        }
-        return UICollectionReusableView()
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView != self.collectionView {
-            let sectionIndex = categoryCollectionViews.firstIndex(of: collectionView) ?? 0
-            let category = viewModel.sections[sectionIndex].categories[indexPath.item]
-            let width = category.size(withAttributes: [.font: UIFont.systemFont(ofSize: 14)]).width + 40
-            return CGSize(width: width, height: 30)
-        }
-        return CGSize(width: 0, height: 0)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView != self.collectionView {
-            let sectionIndex = categoryCollectionViews.firstIndex(of: collectionView) ?? 0
-            viewModel.updateSelectedCategory(at: sectionIndex, to: indexPath.item)
-            collectionView.reloadData()
-            
-            if let header = self.collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: sectionIndex)) as? SectionHeaderView {
-                header.configure(with: viewModel.sections[sectionIndex].title, isActive: true)
-            }
-            
-            for (index, _) in viewModel.sections.enumerated() where index != sectionIndex {
-                if let header = self.collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: index)) as? SectionHeaderView {
-                    header.configure(with: viewModel.sections[index].title, isActive: false)
+    private func configureViewModel() {
+        viewModel?.requestCallback = { [weak self] state in
+            guard let self = self else {return}
+            DispatchQueue.main.async {
+                switch state {
+                case .loading:
+                    self.loadingView.startAnimating()
+                case .loaded:
+                    self.loadingView.stopAnimating()
+                    self.refreshControl.endRefreshing()
+                case .success:
+                    self.listCollectionView.reloadSections(.init(arrayLiteral: 1,2,3,4,5))
+                case .error(let error):
+                    self.showMessage(title: "Error", message: error)
                 }
             }
         }
     }
+    
+    @objc private func reloadPage() {
+        if selectedSegmentBool {
+            viewModel?.getTrendingTvShows(time: selectedTrendingSegmentTime)
+            viewModel?.getOnTheAirTvShows()
+            viewModel?.getPopularTvShows()
+            viewModel?.getAiringTodayTvShows()
+            viewModel?.getTopRatedTvShows()
+        } else {
+            viewModel?.getTrendingMovies(time: selectedTrendingSegmentTime)
+            viewModel?.getNowPlayingMovies()
+            viewModel?.getPopularMovies()
+            viewModel?.getTopRatedMovies()
+            viewModel?.getUpcomingMovies()
+        }
+    }
+    
+    fileprivate func logoNavBarConfiguration() {
+        let logo = UIImage(named: "logoMain")
+        let imageView = UIImageView(image:logo)
+        imageView.contentMode = .scaleAspectFit
+        navigationItem.titleView = imageView
+    }
+    
+    fileprivate func configureNavigationBarTitle(labelStr: String, with offset: CGFloat) {
+        let navigationView = UIView()
+        navigationView.translatesAutoresizingMaskIntoConstraints = false
+        let label = UILabel()
+        label.text = labelStr
+        label.sizeToFit()
+        label.textAlignment = .center
+        label.font = UIFont(name: "Nexa-Bold", size: 20)
+        label.textColor = .white.withAlphaComponent(offset)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        navigationView.addSubview(label)
+        label.centerXToView(to: navigationView)
+        label.centerYToView(to: navigationView)
+
+        navigationItem.titleView = navigationView
+    }
 }
 
+//MARK: UICollectionViewCompositionalLayout
+extension HomeViewController {
+    fileprivate func configureCompositionalLayout() {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment in
+            guard let self = self else {
+                let emptyGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(
+                    widthDimension: .absolute(1),
+                    heightDimension: .absolute(1)
+                ), subitems: [])
+                return NSCollectionLayoutSection(group: emptyGroup)
+            }
+            
+            let section: NSCollectionLayoutSection
+            switch sectionIndex {
+            case 0:
+                section = self.layout.titlesSegmentSection()
+            case 1:
+                section = self.layout.trendingSection()
+                
+                let headerSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .estimated(50)
+                )
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: headerSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top
+                )
+                section.boundarySupplementaryItems = [header]
+            default:
+                section = self.layout.titlesSection()
+                
+                let headerSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .estimated(50)
+                )
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: headerSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top
+                )
+                section.boundarySupplementaryItems = [header]
+            }
+            return section
+        }
+        listCollectionView.setCollectionViewLayout(layout, animated: true)
+    }
+}
+
+//MARK: UICollectionViewDelegate
+extension HomeViewController: UICollectionViewDelegate,
+                          UICollectionViewDataSource,
+                          UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int) -> Int {
+            switch selectedSegmentBool {
+            case false:
+                switch section {
+                case 0: return 1
+                case 1: return viewModel?.getTrendingMovieItems() ?? 0
+                case 2: return viewModel?.getNowPlayingMovieItems() ?? 0
+                case 3: return viewModel?.getTopRatedMovieItems() ?? 0
+                case 4: return viewModel?.getPopularMovieItems() ?? 0
+                case 5: return viewModel?.getUpcomingMovieItems() ?? 0
+                default: return viewModel?.getNowPlayingMovieItems() ?? 0
+                }
+            case true:
+                switch section {
+                case 0: return 1
+                case 1 : return viewModel?.getTrendingTvShowItems() ?? 0
+                case 2: return viewModel?.getOnTheAirTvShowItems() ?? 0
+                case 3: return viewModel?.getTopRatedTvShowItems() ?? 0
+                case 4: return viewModel?.getPopularTvShowItems() ?? 0
+                case 5: return viewModel?.getAiringTodayTvShowItems() ?? 0
+                default: return viewModel?.getOnTheAirTvShowItems() ?? 0
+                }
+            }
+        }
+            
+    func numberOfSections(
+        in collectionView: UICollectionView
+    ) -> Int { 6 }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+            switch selectedSegmentBool {
+            case false:
+                switch indexPath.section {
+                case 0:
+                    let cell: TitlesSwitchSegmentCell = collectionView.dequeue(for: indexPath)
+                    cell.delegate = self
+                    return cell
+                case 1:
+                    let cell: TrendingTitleCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getTrendingMovieProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 2:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getNowPlayingMovieProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 3:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getTopRatedMovieProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 4:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getPopularMovieProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 5:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getUpcomingMoviesProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                default:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    return cell
+                }
+            case true:
+                switch indexPath.section {
+                case 0:
+                    let cell: TitlesSwitchSegmentCell = collectionView.dequeue(for: indexPath)
+                    cell.delegate = self
+                    return cell
+                case 1:
+                    let cell: TrendingTitleCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getTrendingTvShowProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 2:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getOnTheAirTvShowProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 3:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getTopRatedTvShowProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 4:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getPopularTvShowProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                case 5:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    let item = viewModel?.getAiringTodayTvShowProtocol(index: indexPath.item)
+                    cell.configureCell(model: item)
+                    return cell
+                default:
+                    let cell: TitleImageCell = collectionView.dequeue(for: indexPath)
+                    return cell
+                }
+            }
+        }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath) {
+            var item: Int = 0
+            switch selectedSegmentBool {
+            case false:
+                switch indexPath.section {
+                case 1:
+                    item = viewModel?.getTrendingMovie(index: indexPath.item) ?? 0
+                case 2:
+                    item = viewModel?.getNowPlayingMovie(index: indexPath.item) ?? 0
+                case 3:
+                    item = viewModel?.getTopRatedMovie(index: indexPath.item) ?? 0
+                case 4:
+                    item = viewModel?.getPopularMovie(index: indexPath.item) ?? 0
+                case 5:
+                    item = viewModel?.getUpcomingMovie(index: indexPath.item) ?? 0
+                default:
+                    break
+                }
+                print(item)
+                viewModel?.showTitleDetail(mediaType: .movie, id: item)
+            case true:
+                switch indexPath.section {
+                case 1:
+                    item = viewModel?.getTrendingTvShowItem(index: indexPath.item) ?? 0
+                case 2:
+                    item = viewModel?.getOnTheAirTvShowItem(index: indexPath.item) ?? 0
+                case 3:
+                    item = viewModel?.getTopRatedTvShowItem(index: indexPath.item) ?? 0
+                case 4:
+                    item = viewModel?.getPopularTvShowItem(index: indexPath.item) ?? 0
+                case 5:
+                    item = viewModel?.getAiringTodayTvShowItem(index: indexPath.item) ?? 0
+                default:
+                    break
+                }
+                print(item)
+                viewModel?.showTitleDetail(mediaType: .tvShow, id: item)
+            }
+        }
+        
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+        if indexPath.section == 1 {
+            let trendingHeader: TrendingSegmentHeader = collectionView.dequeue(header: TrendingSegmentHeader.self, for: indexPath)
+            
+            trendingHeader.updateSegment(selectedIndex: (selectedTrendingSegmentTime == .week ? 0 : 1))
+            
+            trendingHeader.trendingSegmentClicked = { [weak self] segment in
+                guard let self = self else { return }
+                print(#function)
+                self.trendingSegmentClicked(segmentIndex: segment)
+            }
+            return trendingHeader
+        } else {
+            let header: ListSectionHeader = collectionView.dequeue(header: ListSectionHeader.self, for: indexPath)
+            
+            switch selectedSegmentBool {
+            case false:
+                switch indexPath.section {
+                case 2:
+                    header.configure(with: "Now Playing Movies")
+                case 3:
+                    header.configure(with: "Top Rated Movies")
+                case 4:
+                    header.configure(with: "Popular Movies")
+                case 5:
+                    header.configure(with: "Upcoming Movies")
+                default:
+                    break
+                }
+            case true:
+                switch indexPath.section {
+                case 2:
+                    header.configure(with: "On The Air")
+                case 3:
+                    header.configure(with: "Top Rated Tv Shows")
+                case 4:
+                    header.configure(with: "Popular Tv Shows")
+                case 5:
+                    header.configure(with: "Airing Today")
+                default:
+                    break
+                }
+            }
+            
+            header.seeAllButtonAction = { [weak self] in
+                guard let self = self else { return }
+                seeAllButtonClicked(section: indexPath.section)
+            }
+            return header
+        }
+    }
+    
+    fileprivate func trendingSegmentClicked(segmentIndex: Int){
+        selectedTrendingSegmentTime = (segmentIndex == 0) ? .week : .day
+        switch selectedSegmentBool {
+        case false:
+                viewModel?.getTrendingMovies(time: selectedTrendingSegmentTime)
+        case true:
+                viewModel?.getTrendingTvShows(time: selectedTrendingSegmentTime)
+        }
+    }
+    
+    fileprivate func seeAllButtonClicked(section: Int){
+        switch selectedSegmentBool {
+        case false:
+            switch section {
+            case 2:
+                viewModel?.showAllItems(listType: .movie(.nowPlaying))
+            case 3:
+                viewModel?.showAllItems(listType: .movie(.topRated))
+            case 4:
+                viewModel?.showAllItems(listType: .movie(.popular))
+            case 5:
+                viewModel?.showAllItems(listType: .movie(.upcoming))
+            default:
+                break
+            }
+        case true:
+            switch section {
+            case 2:
+                viewModel?.showAllItems(listType: .tvShow(.onTheAir))
+            case 3:
+                viewModel?.showAllItems(listType: .tvShow(.topRated))
+            case 4:
+                viewModel?.showAllItems(listType: .tvShow(.popular))
+            case 5:
+                viewModel?.showAllItems(listType: .tvShow(.airingToday))
+            default:
+                break
+            }
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        var labelStr: String
+        if selectedSegmentBool {
+            labelStr = "Tv Shows"
+        } else {
+            labelStr = "Movies"
+        }
+        var offset = scrollView.contentOffset.y / 150
+
+        if offset > 1 {
+            offset = 1
+            configureNavigationBarTitle(labelStr: labelStr, with: offset)
+        } else {
+            if offset <= 0 {
+                logoNavBarConfiguration()
+            } else {
+                configureNavigationBarTitle(labelStr: labelStr, with: offset)
+            }
+        }
+    }
+}
+
+extension HomeViewController: TitlesSwitchSegmentCellDelegate {
+    func didClickSegment(index: Int) {
+        selectedSegmentBool.toggle()
+        
+        if selectedSegmentBool {
+            viewModel?.getTrendingTvShows(time: selectedTrendingSegmentTime)
+            viewModel?.getOnTheAirTvShows()
+            viewModel?.getPopularTvShows()
+            viewModel?.getAiringTodayTvShows()
+            viewModel?.getTopRatedTvShows()
+        } else {
+            viewModel?.getTrendingMovies(time: selectedTrendingSegmentTime)
+            viewModel?.getNowPlayingMovies()
+            viewModel?.getPopularMovies()
+            viewModel?.getTopRatedMovies()
+            viewModel?.getUpcomingMovies()
+        }
+    }
+}

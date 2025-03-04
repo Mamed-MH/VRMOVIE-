@@ -6,15 +6,29 @@
 //
 
 import UIKit
-public protocol WithUsingProtocol {}
-extension UIView: WithUsingProtocol {}
 
-extension WithUsingProtocol {
-    public func withUsing(_ closure: (Self) -> Void) -> Self {
-        closure(self)
-        return self
+extension UIEdgeInsets {
+    // Initialize UIEdgeInsets with equal padding for all sides
+    public init(all value: CGFloat) {
+        self = .init(top: value, left: value, bottom: -value, right: -value)
+    }
+    
+    // Initialize UIEdgeInsets with individual padding values for each side
+    public init(top: CGFloat = 0, leading: CGFloat = 0, bottom: CGFloat = 0, trailing: CGFloat = 0) {
+        self = .init(top: top, left: leading, bottom: bottom, right: trailing)
+    }
+    
+    // Initialize UIEdgeInsets with equal vertical and horizontal padding
+    public init(y: CGFloat = 0, x: CGFloat = 0) {
+        self = .init(top: y, left: x, bottom: -y, right: -x)
+    }
+    
+    // Initialize UIEdgeInsets with specified top, horizontal, and bottom padding
+    public init(top: CGFloat = 0, x: CGFloat, bottom: CGFloat = 0) {
+        self = .init(top: top, left: x, bottom: bottom, right: -x)
     }
 }
+
 // MARK: - UIView Extension
 extension UIView {
     
@@ -237,7 +251,7 @@ extension UIView {
             ).isActive = size.height != 0
         }
     
-    public func centerToYView(
+    public func centerYToView(
         to view: UIView,
         size: CGSize = .zero,
         yConstant: CGFloat = 0) {

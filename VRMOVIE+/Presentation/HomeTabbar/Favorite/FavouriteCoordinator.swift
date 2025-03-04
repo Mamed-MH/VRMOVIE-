@@ -8,11 +8,9 @@
 import Foundation
 import UIKit.UINavigationController
 
-final class FavouriteCoordinator: Coordinator {
+final class FavoriteCoordinator: Coordinator {
     var parentCoordinator: Coordinator?
-    
     var children: [Coordinator] = []
-    
     var navigationController: UINavigationController
     
     init(navigationController: UINavigationController) {
@@ -20,7 +18,23 @@ final class FavouriteCoordinator: Coordinator {
     }
     
     func start() {
-        let controller = FavouriteController(viewModel: .init())
+        let controller = FavoriteViewController(viewModel: FavoriteViewModel(navigation: self))
         showController(vc: controller)
+    }
+}
+
+extension FavoriteCoordinator: FavoriteNavigation, HomeNavigation {
+    func showDetails(mediaType: MediaType, id: Int) {
+        let vc = MovieDetailController(viewModel: .init(mediaType: mediaType, id: id, navigation: self))
+        vc.hidesBottomBarWhenPushed = true
+        showController(vc: vc)
+    }
+    
+    func showAllItems(listType: HomeListType) {
+        return
+    }
+    
+    func popController() {
+        popControllerBack()
     }
 }

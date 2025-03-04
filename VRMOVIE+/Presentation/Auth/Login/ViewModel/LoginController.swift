@@ -46,11 +46,12 @@ final class LoginController: UIViewController {
     private lazy var emailTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Email Address"
-        textField.borderStyle = .roundedRect
         textField.backgroundColor = .white
-        textField.layer.cornerRadius = 8
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.layer.cornerRadius = 25
+        textField.layer.masksToBounds = true
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 0))
+        textField.leftViewMode = .always
+        textField.font = .systemFont(ofSize: 16)
         textField.textColor = .black
         textField.attributedPlaceholder = NSAttributedString(
             string: "Email Address",
@@ -63,13 +64,14 @@ final class LoginController: UIViewController {
     private lazy var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Password"
-        textField.borderStyle = .roundedRect
         textField.backgroundColor = .white
-        textField.layer.cornerRadius = 8
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor.lightGray.cgColor
-        textField.textColor = .black
+        textField.layer.cornerRadius = 25
+        textField.layer.masksToBounds = true
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 0))
+        textField.leftViewMode = .always
+        textField.font = .systemFont(ofSize: 16)
         textField.isSecureTextEntry = true
+        textField.textColor = .black
         textField.attributedPlaceholder = NSAttributedString(
             string: "Password",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray]
@@ -78,21 +80,15 @@ final class LoginController: UIViewController {
         return textField
     }()
     
-    private lazy var loginButtonContainer: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "button")
-        imageView.contentMode = .scaleToFill
-        imageView.isUserInteractionEnabled = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-    
-    private lazy var loginButtonImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "login")
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
+    private let loginButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Login", for: .normal)
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 25
+        button.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let viewModel: LoginViewModel
@@ -111,6 +107,39 @@ final class LoginController: UIViewController {
         configureConstaints()
     }
     
+    
+    @objc private func loginButtonTapped() {
+        let email = emailTextField.text
+        let password = passwordTextField.text
+        
+        emailTextField.errorBorderOff()
+        passwordTextField.errorBorderOff()
+        
+        if let errorMessage = viewModel.validateInputs(email: email, password: password) {
+           
+            if email?.isEmpty ?? true || !(email?.isValidEmail() ?? false) {
+                emailTextField.errorBorderOn()
+            }
+            if password?.isEmpty ?? true || !(password?.isValidPassword() ?? false) {
+                passwordTextField.errorBorderOn()
+            }
+            showAlert(message: errorMessage)
+        } else {
+           
+            let alert = UIAlertController(title: "Uğurlu", message: "Giriş uğurla tamamlandı!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+                self?.viewModel.loginUser(email: email!, password: password!)
+            })
+            present(alert, animated: true)
+        }
+    }
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Xəta", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
     func configureConstaints() {
         
         view.addSubview(backgroundImageView)
@@ -119,8 +148,7 @@ final class LoginController: UIViewController {
         view.addSubview(logoImageView)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
-        view.addSubview(loginButtonContainer)
-        loginButtonContainer.addSubview(loginButtonImage)
+        view.addSubview(loginButton)
         
         NSLayoutConstraint.activate([
             backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -155,15 +183,10 @@ final class LoginController: UIViewController {
             passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
             passwordTextField.heightAnchor.constraint(equalToConstant: 45),
             
-            loginButtonContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loginButtonContainer.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 60),
-            loginButtonContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
-            loginButtonContainer.heightAnchor.constraint(equalToConstant: 55),
-            
-            loginButtonImage.centerXAnchor.constraint(equalTo: loginButtonContainer.centerXAnchor),
-            loginButtonImage.centerYAnchor.constraint(equalTo: loginButtonContainer.centerYAnchor),
-            loginButtonImage.widthAnchor.constraint(equalTo: loginButtonContainer.widthAnchor, multiplier: 0.6),
-            loginButtonImage.heightAnchor.constraint(equalTo: loginButtonContainer.heightAnchor, multiplier: 0.6)
+            loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
+            loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            loginButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     

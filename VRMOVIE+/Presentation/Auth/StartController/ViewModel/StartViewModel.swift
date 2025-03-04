@@ -6,21 +6,20 @@
 //
 
 final class StartViewModel {
-    
     private let navigation: AuthNavigation?
-    
+
     init(navigation: AuthNavigation) {
         self.navigation = navigation
     }
-    
+
     func showLogin() {
         navigation?.showLogin()
     }
-    
+
     func showRegister() {
         navigation?.showRegister()
     }
-    
 }
+
 
 

@@ -10,18 +10,25 @@ import UIKit.UINavigationController
 
 final class AppCoordinator: Coordinator {
     var parentCoordinator: Coordinator?
-    
     var children: [Coordinator] = []
-    
     var navigationController: UINavigationController
+    private let window: UIWindow
     
-    // burada userDefaults'dan istifade edirik
-    var isLogin: Bool = true
-    init(navigationController: UINavigationController) {
+    private var isLogin: Bool = false
+    
+    init(window: UIWindow, navigationController: UINavigationController) {
+        self.window = window
         self.navigationController = navigationController
+        setupObserver()
     }
     
+    private func setupObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(listener), name: NSNotification.Name("auth.session.exp"), object: nil)
+    }
+    
+    
     func start() {
+        isLogin = UserDefaultsHelper.getBool(key: "isLoggedIn")
         if isLogin {
             showHome()
         } else {
@@ -30,20 +37,30 @@ final class AppCoordinator: Coordinator {
     }
     
     fileprivate func showAuth() {
-        children.removeAll()
-//        let authCoordinator = AuthCoordinator(navigationController: navigationController)
-//        children.append(authCoordinator)
-//        authCoordinator.parentCoordinator = self
-//        authCoordinator.start()
-    }
-    
-    fileprivate func showHome() {
-        
         navigationController.setViewControllers([], animated: true)
         children.removeAll()
 
-        let homeVC = HomeViewController(categoryCollectionViews: [], headerViews: [])
-        navigationController.setViewControllers([homeVC], animated: true)
+        let authCoordinator = AuthCoordinator(window: window, navigationController: navigationController)
+        authCoordinator.parentCoordinator = self
+        children.append(authCoordinator)
+        authCoordinator.start()
     }
+    
+    fileprivate func showHome() {
+        navigationController.setViewControllers([], animated: true)
+        
+        children.removeAll()
 
+        let homeTabBarCoordinator = HomeTabBarCoordinator(window: window, navigationController: navigationController)
+        homeTabBarCoordinator.parentCoordinator = self
+        children.append(homeTabBarCoordinator)
+        homeTabBarCoordinator.start()
+    }
+    
+    @objc private func listener() {
+        print(#function)
+        DispatchQueue.main.async {
+            self.showHome()
+        }
+    }
 }
