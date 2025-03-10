@@ -5,38 +5,90 @@
 //  Created by Mamed Hacıyev on 3.02.2025.
 //
 
+import Foundation
 import UIKit
 
 final class LoginViewModel {
     
-    private let navigation: AuthNavigation?
-
+    var loginSuccessCallback: (() -> Void)?
+    
+    enum ViewState {
+        case loading
+        case loaded
+        case success
+        case error(message: String)
+    }
+    
+    var requestCallback : ((ViewState) -> Void?)?
+    private weak var navigation: AuthNavigation?
+    private var guestSessionUse: GuestSessionUseCase = GuestSessionAPIService()
+    private(set) var tokenCredentials: GuestSessionProtocol?
+    
+    private var model: UserDataModel = UserDataModel()
+    
+    func setInput(email: String, password: String) {
+        model.password = password
+        model.email = email
+    }
+        
     init(navigation: AuthNavigation) {
         self.navigation = navigation
     }
     
-    func validateInputs(email: String?, password: String?) -> String? {
-        guard let email = email, !email.isEmpty else {
-            return "Email boş ola bilməz."
+    func createGuestSessionToken() {
+        guestSessionUse.createGuestSessiontoken { [weak self] dto, error in
+            guard let self = self else { return }
+            self.requestCallback?(.loaded)
+            DispatchQueue.main.async {
+                self.loginSuccessCallback?()
+                if let dto = dto {
+                    self.tokenCredentials = dto.mapToDomain()
+                    print(self.tokenCredentials!)
+                    UserDefaultsHelper.setString(key: "guestSessionID", value: self.tokenCredentials?.guestSessionID ?? "")
+                    self.requestCallback?(.success)
+                    self.loginSuccessCallback?()
+                } else if let error = error {
+                    self.requestCallback?(.error(message: error))
+                }
+            }
         }
-        
-        if !email.isValidEmail() {
-            return "Düzgün email formatı daxil edin."
-        }
-        
-        guard let password = password, !password.isEmpty else {
-            return "Şifrə boş ola bilməz."
-        }
-        
-        if !password.isValidPassword() {
-            return "Şifrə ən azı 6 simvol, 1 böyük hərf və 1 rəqəm olmalıdır."
-        }
-        
-        return nil
     }
     
-    func loginUser(email: String, password: String) {
-        print("Giriş uğurlu oldu: \(email)")
+    
+    
+    func checkLogin() {
+        requestCallback?(.loading)
+        DispatchQueue.main.async {
+            FirebaseHelper.shared.signInWithEmail(email: self.model.email ?? "", password: self.model.password ?? "") { result in
+                switch result {
+                case .success(let field):
+                    switch field {
+                    case .loaded:
+                        print(#function)
+                    case .success:
+                        self.requestCallback?(.success)
+                    case .successWithReturn(let username):
+                        UserDefaultsHelper.setString(key: "username", value: username ?? "")
+                        UserDefaultsHelper.setString(key: "email", value: self.model.email ?? "")
+                        self.createGuestSessionToken()
+                    }
+                case .failure(let error):
+                    let errorMessage = error.localizedDescription
+                    self.requestCallback?(.error(message: errorMessage))
+                }
+            }
+        }
+    }
+    
+    func popControllerBack() {
+        navigation?.popbackScreen()
+    }
+    
+    func startHomeScreen() {
         navigation?.showHomeScreen()
+    }
+    
+    func showShowSignUpScreen() {
+        navigation?.showSignUp()
     }
 }

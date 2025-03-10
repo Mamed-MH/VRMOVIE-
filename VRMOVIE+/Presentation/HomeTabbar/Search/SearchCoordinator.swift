@@ -24,6 +24,12 @@ final class SearchCoordinator: Coordinator {
 }
 
 extension SearchCoordinator: SearchNavigation, HomeNavigation {
+    func navigateToMenu() {
+        let homeVM = HomeViewModel(navigation: self)
+        let homeVC = HomeViewController(viewModel: homeVM)
+        navigationController.pushViewController(homeVC, animated: true)
+    }
+    
     func showAllItems(listType: HomeListType) {
         return
     }

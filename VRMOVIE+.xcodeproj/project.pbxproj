@@ -84,6 +84,7 @@
 		817E17D62D5DD22800C2F99A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 817E17B52D5DD22800C2F99A /* Assets.xcassets */; };
 		817E17D72D5DD22800C2F99A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 817E17B72D5DD22800C2F99A /* LaunchScreen.storyboard */; };
 		817E18D72D5DDBFA00C2F99A /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 817E18D62D5DDBFA00C2F99A /* SDWebImage */; };
+		819D39B32D7AE6B400EBC27D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 819D39B22D7AE6B300EBC27D /* GoogleService-Info.plist */; };
 		81A0ACE82D5E690C005C0BDC /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 81A0ACE72D5E690C005C0BDC /* FirebaseAnalytics */; };
 		81A0ACEA2D5E690C005C0BDC /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A0ACE92D5E690C005C0BDC /* FirebaseAuth */; };
 		81A0ACEC2D5E690C005C0BDC /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A0ACEB2D5E690C005C0BDC /* FirebaseCore */; };
@@ -93,7 +94,6 @@
 		81A0AD272D5F26B2005C0BDC /* ReusableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD0F2D5F26B2005C0BDC /* ReusableTextField.swift */; };
 		81A0AD292D5F26B2005C0BDC /* ReusableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD0E2D5F26B2005C0BDC /* ReusableLabel.swift */; };
 		81A0AD2A2D5F26B2005C0BDC /* ReusableButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD0D2D5F26B2005C0BDC /* ReusableButton.swift */; };
-		81A0AD2C2D5F26B2005C0BDC /* StartViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD092D5F26B2005C0BDC /* StartViewModel.swift */; };
 		81A0AD2D2D5F26B2005C0BDC /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD122D5F26B2005C0BDC /* BaseViewController.swift */; };
 		81A0AD2E2D5F26B2005C0BDC /* CoreErrorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0ACF42D5F26B2005C0BDC /* CoreErrorModel.swift */; };
 		81A0AD2F2D5F26B2005C0BDC /* HomeTabbarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD212D5F26B2005C0BDC /* HomeTabbarCoordinator.swift */; };
@@ -107,7 +107,6 @@
 		81A0AD392D5F26B2005C0BDC /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD192D5F26B2005C0BDC /* HomeViewController.swift */; };
 		81A0AD3A2D5F26B2005C0BDC /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0ACEF2D5F26B2005C0BDC /* Extension.swift */; };
 		81A0AD3B2D5F26B2005C0BDC /* CoreAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0ACF32D5F26B2005C0BDC /* CoreAPIManager.swift */; };
-		81A0AD3C2D5F26B2005C0BDC /* StartController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD082D5F26B2005C0BDC /* StartController.swift */; };
 		81A0AD432D5F99B1005C0BDC /* HomeCollectionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD422D5F99AF005C0BDC /* HomeCollectionLayout.swift */; };
 		81A0AD492D5F9AC3005C0BDC /* FavouriteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD482D5F9AC1005C0BDC /* FavouriteCoordinator.swift */; };
 		81A0AD4C2D5F9BC8005C0BDC /* FavouriteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A0AD4B2D5F9BC7005C0BDC /* FavouriteViewModel.swift */; };
@@ -192,6 +191,7 @@
 		817E17B52D5DD22800C2F99A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		817E17B62D5DD22800C2F99A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		817E17B92D5DD22800C2F99A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		819D39B22D7AE6B300EBC27D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		81A0ACEF2D5F26B2005C0BDC /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		81A0ACF02D5F26B2005C0BDC /* LayoutExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutExtension.swift; sourceTree = "<group>"; };
 		81A0ACF22D5F26B2005C0BDC /* CoreAPIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAPIHelper.swift; sourceTree = "<group>"; };
@@ -201,8 +201,6 @@
 		81A0ACFD2D5F26B2005C0BDC /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		81A0AD022D5F26B2005C0BDC /* RegisterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterController.swift; sourceTree = "<group>"; };
 		81A0AD032D5F26B2005C0BDC /* RegisterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewModel.swift; sourceTree = "<group>"; };
-		81A0AD082D5F26B2005C0BDC /* StartController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartController.swift; sourceTree = "<group>"; };
-		81A0AD092D5F26B2005C0BDC /* StartViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewModel.swift; sourceTree = "<group>"; };
 		81A0AD0D2D5F26B2005C0BDC /* ReusableButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReusableButton.swift; sourceTree = "<group>"; };
 		81A0AD0E2D5F26B2005C0BDC /* ReusableLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReusableLabel.swift; sourceTree = "<group>"; };
 		81A0AD0F2D5F26B2005C0BDC /* ReusableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReusableTextField.swift; sourceTree = "<group>"; };
@@ -567,6 +565,7 @@
 				817E17842D5DD22800C2F99A /* Model */,
 				817E17B82D5DD22800C2F99A /* Resource */,
 				817E17B92D5DD22800C2F99A /* Info.plist */,
+				819D39B22D7AE6B300EBC27D /* GoogleService-Info.plist */,
 			);
 			path = "VRMOVIE+";
 			sourceTree = "<group>";
@@ -605,20 +604,6 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
-		81A0ACFA2D5F26B2005C0BDC /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		81A0ACFB2D5F26B2005C0BDC /* View */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
 		81A0ACFE2D5F26B2005C0BDC /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -631,25 +616,9 @@
 		81A0ACFF2D5F26B2005C0BDC /* Login */ = {
 			isa = PBXGroup;
 			children = (
-				81A0ACFA2D5F26B2005C0BDC /* Model */,
-				81A0ACFB2D5F26B2005C0BDC /* View */,
 				81A0ACFE2D5F26B2005C0BDC /* ViewModel */,
 			);
 			path = Login;
-			sourceTree = "<group>";
-		};
-		81A0AD002D5F26B2005C0BDC /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		81A0AD012D5F26B2005C0BDC /* View */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		81A0AD042D5F26B2005C0BDC /* ViewModel */ = {
@@ -664,44 +633,9 @@
 		81A0AD052D5F26B2005C0BDC /* Register */ = {
 			isa = PBXGroup;
 			children = (
-				81A0AD002D5F26B2005C0BDC /* Model */,
-				81A0AD012D5F26B2005C0BDC /* View */,
 				81A0AD042D5F26B2005C0BDC /* ViewModel */,
 			);
 			path = Register;
-			sourceTree = "<group>";
-		};
-		81A0AD062D5F26B2005C0BDC /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		81A0AD072D5F26B2005C0BDC /* View */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		81A0AD0A2D5F26B2005C0BDC /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				81A0AD082D5F26B2005C0BDC /* StartController.swift */,
-				81A0AD092D5F26B2005C0BDC /* StartViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		81A0AD0B2D5F26B2005C0BDC /* StartController */ = {
-			isa = PBXGroup;
-			children = (
-				81A0AD062D5F26B2005C0BDC /* Model */,
-				81A0AD072D5F26B2005C0BDC /* View */,
-				81A0AD0A2D5F26B2005C0BDC /* ViewModel */,
-			);
-			path = StartController;
 			sourceTree = "<group>";
 		};
 		81A0AD0C2D5F26B2005C0BDC /* Auth */ = {
@@ -709,7 +643,6 @@
 			children = (
 				813E04BA2D6DACE900519877 /* AuthNavigation.swift */,
 				813E04B82D6DAC9F00519877 /* AuthCoordinator.swift */,
-				81A0AD0B2D5F26B2005C0BDC /* StartController */,
 				81A0AD052D5F26B2005C0BDC /* Register */,
 				81A0ACFF2D5F26B2005C0BDC /* Login */,
 				8155CDF32D6CB2A7001C6EEB /* Models */,
@@ -947,6 +880,7 @@
 				815631152D736136009D829A /* Nexa-Bold.ttf in Resources */,
 				815631162D736136009D829A /* Nexa-Regular.ttf in Resources */,
 				817E17D72D5DD22800C2F99A /* LaunchScreen.storyboard in Resources */,
+				819D39B32D7AE6B400EBC27D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -988,7 +922,6 @@
 				810988582D648C7600E08F94 /* TrendingTitleCell.swift in Sources */,
 				815A67E82D69BA3000DBF194 /* MovieDetailDTO.swift in Sources */,
 				8155CDE62D6CAF47001C6EEB /* SearchCoordinator.swift in Sources */,
-				81A0AD2C2D5F26B2005C0BDC /* StartViewModel.swift in Sources */,
 				815A67EA2D69BA4F00DBF194 /* TvShowDetailDTO.swift in Sources */,
 				81A0AD2D2D5F26B2005C0BDC /* BaseViewController.swift in Sources */,
 				8155CDE42D6CAF33001C6EEB /* SearchNavigation.swift in Sources */,
@@ -1047,7 +980,6 @@
 				81A0AD3B2D5F26B2005C0BDC /* CoreAPIManager.swift in Sources */,
 				81A0AD4E2D5F9BEB005C0BDC /* FavoriteViewController.swift in Sources */,
 				8109885E2D648D8200E08F94 /* TrendingSegmentHeader.swift in Sources */,
-				81A0AD3C2D5F26B2005C0BDC /* StartController.swift in Sources */,
 				817E17C12D5DD22800C2F99A /* User.swift in Sources */,
 				8155CDD52D6CADF0001C6EEB /* ProfileNavigation.swift in Sources */,
 				815A67E62D69B9F200DBF194 /* MovieDetailProtocol.swift in Sources */,
@@ -1079,7 +1011,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "VRMOVIE+/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1106,7 +1038,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "VRMOVIE+/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

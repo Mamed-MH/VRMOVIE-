@@ -25,7 +25,7 @@ final class AuthCoordinator: Coordinator {
     }
     
     func start() {
-        let controller = StartController(viewModel: .init(navigation: self))
+        let controller = RegisterController(viewModel: .init(navigation: self))
         showController(vc: controller)
     }
 }

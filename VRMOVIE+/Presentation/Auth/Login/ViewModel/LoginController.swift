@@ -7,7 +7,17 @@
 
 import UIKit
 
-final class LoginController: UIViewController {
+final class LoginController: BaseViewController {
+  
+    private lazy var loadingView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView(style: .large)
+        view.color = .white
+        view.tintColor = .white
+        view.hidesWhenStopped = true
+        view.backgroundColor = .backgroundMain
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     private lazy var backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -80,22 +90,23 @@ final class LoginController: UIViewController {
         return textField
     }()
     
-    private let loginButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Login", for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 25
-        button.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+    private lazy var loginButton: UIButton = {
+        let button = ReusableButton(title: "Login", onAction: loginButtonClicked,
+                                    cornerRad: 20, bgColor: .primaryHighlight, titleColor: .white, titleSize: 20, titleFont: "Nexa-Bold")
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let viewModel: LoginViewModel
     
+    
     init(viewModel: LoginViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    deinit {
+        viewModel.requestCallback = nil
     }
     
     required init?(coder: NSCoder) {
@@ -105,40 +116,59 @@ final class LoginController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureConstaints()
+        configureViewModel()
+        
+        
+    }
+    
+    private func configureViewModel() {
+        viewModel.loginSuccessCallback = { [weak self] in
+                guard let self = self else { return }
+                DispatchQueue.main.async { // ✅ `DispactionName` əvəzinə `DispatchQueue`
+                    let alert = UIAlertController(
+                        title: "Uğurlu Giriş!",
+                        message: "Siz uğurlu daxil oldunuz.",
+                        preferredStyle: .alert // ✅ `.alert` istifadə edin
+                    )
+                    let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+                        self.navigateToMenu() // ✅ Düzgün funksiya adı
+                    }
+                    alert.addAction(okAction) // ✅ `addaction` əvəzinə `addAction`
+                    self.present(alert, animated: true) // ✅ `minintest` əvəzinə `animated`
+            }
+        }
+
+    }
+    
+    func navigateToMenu() {
+        
+        
+        
     }
     
     
-    @objc private func loginButtonTapped() {
-        let email = emailTextField.text
-        let password = passwordTextField.text
+    @objc private func loginButtonClicked() {
+        guard
+            let email = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), // ✅ `.whitespacesAndNewlines`
+            let password = passwordTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        else { return }
         
-        emailTextField.errorBorderOff()
-        passwordTextField.errorBorderOff()
-        
-        if let errorMessage = viewModel.validateInputs(email: email, password: password) {
-           
-            if email?.isEmpty ?? true || !(email?.isValidEmail() ?? false) {
-                emailTextField.errorBorderOn()
-            }
-            if password?.isEmpty ?? true || !(password?.isValidPassword() ?? false) {
-                passwordTextField.errorBorderOn()
-            }
-            showAlert(message: errorMessage)
+        if checkInput(email: email, password: password) {
         } else {
-           
-            let alert = UIAlertController(title: "Uğurlu", message: "Giriş uğurla tamamlandı!", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-                self?.viewModel.loginUser(email: email!, password: password!)
-            })
-            present(alert, animated: true)
+            showMessage(title: "Xəta", message: "Email və ya Şifrə yanlışdır")
         }
     }
     
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "Xəta", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+    fileprivate func logUserIn() {
+        guard let email = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), let password = passwordTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {return}
+        viewModel.setInput(email: email, password: password)
+        viewModel.checkLogin()
     }
+    
+    fileprivate func checkInput(email: String, password: String) -> Bool {
+        return email.isValidEmail() && password.isValidPassword()
+    }
+    
     
     func configureConstaints() {
         

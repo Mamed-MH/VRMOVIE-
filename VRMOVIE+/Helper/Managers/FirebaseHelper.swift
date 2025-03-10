@@ -10,6 +10,7 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseAuth
 import GoogleSignIn
+import Network
 
 enum SuccesType {
     case success
@@ -25,40 +26,63 @@ final class FirebaseHelper {
     func signInWithEmail(email: String, password: String, completion: @escaping (Result<SuccesType, Error>) -> Void) {
         FirebaseHelper.auth.signIn(withEmail: email, password: password) { [weak self] authResult, error in
             guard let _ = self else { return }
-            completion(.success(.loaded))
-            if error != nil {
-                completion(.failure(NSError(domain: "FirebaseLogInError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Wrong Email or Password!"])))
+            
+            if let error = error {
+                completion(.failure(error)) // Firebase-in real xətasını qaytar
+                return
             }
-            if (authResult?.user) != nil {
-                completion(.success(.successWithReturn(authResult?.user.displayName)))
+
+            guard let user = authResult?.user else {
+                completion(.failure(NSError(domain: "FirebaseLogInError", code: 1, userInfo: [NSLocalizedDescriptionKey: "User not found"])))
+                return
+            }
+
+            completion(.success(.successWithReturn(user.displayName)))
+        }
+    }
+
+    
+    func checkInternetConnection() {
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "InternetMonitor")
+        monitor.start(queue: queue)
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                print("Internet connection is available.")
+            } else {
+                print("No internet connection.")
             }
         }
     }
+
     
     func createUserWithEmailUsername(email: String, username: String, password: String, completion: @escaping (Result<SuccesType, Error>) -> Void) {
-        FirebaseHelper.auth.createUser(withEmail: email, password: password) { [weak self] authResult, error  in
+        FirebaseHelper.auth.createUser(withEmail: email, password: password) { [weak self] authResult, error in
             guard let _ = self else { return }
-            completion(.success(.loaded))
-            if let _ = error {
-                completion(.failure(NSError(domain: "FirebaseSignInError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Error reaching server"])))
+            
+            if let error = error {
+                completion(.failure(error))
                 return
             }
+
             guard let user = authResult?.user else {
                 completion(.failure(NSError(domain: "FirebaseSignInError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error creating user"])))
                 return
             }
-            
+
             let usernameChangeRequest = user.createProfileChangeRequest()
             usernameChangeRequest.displayName = username
             usernameChangeRequest.commitChanges { error in
-                if let _ = error {
-                    completion(.failure(NSError(domain: "FirebaseSignInError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Error setting up username"])))
+                if let error = error {
+                    completion(.failure(error))
                 } else {
                     completion(.success(.success))
                 }
             }
         }
     }
+
+
     
     func GoogleSignIn(viewController: UIViewController, completion: @escaping (Result<SuccesType, Error>) -> Void) {
         guard let clientID = FirebaseApp.app()?.options.clientID else {

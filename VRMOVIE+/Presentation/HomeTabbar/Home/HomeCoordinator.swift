@@ -24,6 +24,7 @@ final class HomeCoordinator: Coordinator {
 }
 
 extension HomeCoordinator: HomeNavigation {
+    
     func showAllItems(listType: HomeListType) {
         let vc = SeeAllItemsController(viewModel: .init(listType: listType, navigation: self))
         vc.hidesBottomBarWhenPushed = true

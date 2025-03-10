@@ -7,8 +7,21 @@
 
 
 import UIKit
+import FirebaseCore
+import FirebaseFirestore
+import FirebaseAuth
 
-class RegisterController: UIViewController {
+class RegisterController: BaseViewController {
+    
+    private lazy var loadingView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView(style: .large)
+        view.color = .white
+        view.tintColor = .white
+        view.hidesWhenStopped = true
+        view.backgroundColor = .backgroundMain
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     private lazy var backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -45,68 +58,49 @@ class RegisterController: UIViewController {
     }()
     
     private lazy var nameTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Full Name"
-        textField.backgroundColor = .white
-        textField.layer.cornerRadius = 25
-        textField.layer.masksToBounds = true
-        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 0))
-        textField.leftViewMode = .always
-        textField.font = .systemFont(ofSize: 16)
-        textField.textColor = .black
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "Full Name",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray]
-        )
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+        let textfield = ReusableTextField(placeholder: "Username", iconName: "person", placeholderFont: "NexaRegular", iconTintColor: .accentMain, cornerRadius: 20, borderColor: .clear)
+        textfield.textColor = .black
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.keyboardType = .default
+        textfield.inputAssistantItem.leadingBarButtonGroups = []
+        textfield.inputAssistantItem.trailingBarButtonGroups = []
+        textfield.inputAccessoryView = nil
+        return textfield
     }()
     
     private lazy var emailTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Email Address"
-        textField.backgroundColor = .white
-        textField.layer.cornerRadius = 25
-        textField.layer.masksToBounds = true
-        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 0))
-        textField.leftViewMode = .always
-        textField.font = .systemFont(ofSize: 16)
-        textField.textColor = .black
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "Email Address",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray]
-        )
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+        let textfield = ReusableTextField(placeholder: "Email", iconName: "envelope", placeholderFont: "NexaRegular", iconSetting: 6, iconTintColor: .accentMain, cornerRadius: 20, borderColor: .clear)
+        textfield.textColor = .black
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.keyboardType = .default
+        textfield.inputAssistantItem.leadingBarButtonGroups = []
+        textfield.inputAssistantItem.trailingBarButtonGroups = []
+        textfield.inputAccessoryView = nil
+        return textfield
     }()
     
     private lazy var passwordTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Password"
-        textField.backgroundColor = .white
-        textField.layer.cornerRadius = 25
-        textField.layer.masksToBounds = true
-        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 0))
-        textField.leftViewMode = .always
-        textField.font = .systemFont(ofSize: 16)
-        textField.isSecureTextEntry = true
-        textField.textColor = .black
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "Password",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray]
-        )
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+        let textfield = ReusableTextField(placeholder: "Password", iconName: "lock", placeholderFont: "NexaRegular", iconTintColor: .accentMain, cornerRadius: 20, borderColor: .clear)
+        textfield.delegate = self
+        
+        textfield.rightViewMode = .always
+        textfield.isSecureTextEntry = true
+        textfield.inputAssistantItem.leadingBarButtonGroups = []
+        textfield.inputAssistantItem.trailingBarButtonGroups = []
+        textfield.keyboardType = .default
+        textfield.inputAccessoryView = nil
+
+        
+        textfield.textColor = .black
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        return textfield
     }()
     
     
-    private let signUpButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Sign Up", for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 25
-        button.addTarget(self, action: #selector(signUpButtonTapped), for: .touchUpInside)
+    private lazy var signupButton: UIButton = {
+        let button = ReusableButton(title: "Sign Up", onAction: signupButtonClicked,
+                                    cornerRad: 20, bgColor: .primaryHighlight, titleColor: .white, titleSize: 20, titleFont: "Nexa-Bold")
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
@@ -126,27 +120,112 @@ class RegisterController: UIViewController {
         super.viewDidLoad()
         navigationItem.hidesBackButton = true
         setupUI()
-        signUpButtonTapped()
+        configureViewModel()
+        removeErrorBorder()
     }
     
-    @objc private func signUpButtonTapped() {
-        let fullName = nameTextField.text
-        let email = emailTextField.text
-        let password = passwordTextField.text
-        
-        if let errorMessage = viewModel.validateInputs(fullName: fullName, email: email, password: password) {
-            showAlert(message: errorMessage)
-        } else {
-            viewModel.registerUser(fullName: fullName!, email: email!, password: password!)
+    
+    private func configureViewModel() {
+        viewModel.requestCallback = { [weak self] state in
+            guard let self = self else {return}
+            DispatchQueue.main.async {
+                switch state {
+                case .loading:
+                    self.loadingView.startAnimating()
+                case .loaded:
+                    self.loadingView.stopAnimating()
+                case .success:
+                    self.showMessage(title: "User created", message: "User created successfully.")
+                    self.viewModel.popController()
+                case .error(let error):
+                    self.showMessage(title: "Error", message: error)
+                }
+            }
         }
     }
+    
+    @objc fileprivate func signupButtonClicked() {
+        checkInputRequirements()
+    }
+    
+    @objc fileprivate func loginButtonTapped() {
+        viewModel.showLoginScreen()
+    }
+    
+    fileprivate func createUserWithPassword(email: String, password: String, username: String) {
+        viewModel.createUser(email: email, password: password, username: username)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    fileprivate func removeErrorBorder() {
+        nameTextField.errorBorderOff()
+        emailTextField.errorBorderOff()
+        passwordTextField.errorBorderOff()
+    }
+    
+    @objc func checkInputRequirements() {
+        guard let email = emailTextField.text, !email.isEmpty,
+              let username = nameTextField.text, !username.isEmpty,
+              let password = passwordTextField.text, !password.isEmpty else {
+               showAlert(title: "Xəta", message: "Bütün sahələri doldurun.")
+               return
+           }
 
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "Xəta", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+           FirebaseHelper.shared.createUserWithEmailUsername(email: email, username: username, password: password) { [weak self] result in
+               DispatchQueue.main.async {
+                   switch result {
+                   case .success(.success):
+                       self?.showAlert(title: "Uğur!", message: "İstifadəçi uğurla yaradıldı!") {
+                           self?.navigateToLoginController()
+                       }
+                   case .failure(let error):
+                       self?.showAlert(title: "Xəta", message: error.localizedDescription)
+                   default:
+                       break
+                }
+            }
+        }
+    }
+    
+    func navigateToLoginController() {
+
+        
     }
 
+    
+    
+    func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+            completion?()
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+
+
+    
+    
+    
+    fileprivate func checkErrorBorders(email: String, password: String, username: String) {
+        if !username.isValidName() {
+            nameTextField.errorBorderOn()
+        } else {
+            nameTextField.errorBorderOff()
+        }
+        if !email.isValidEmail() {
+            emailTextField.errorBorderOn()
+        } else {
+            emailTextField.errorBorderOff()
+        }
+        if !password.isValidPassword() {
+            passwordTextField.errorBorderOn()
+        } else {
+            passwordTextField.errorBorderOff()
+        }
+    }
     
     private func setupUI() {
         view.addSubview(backgroundImageView)
@@ -156,8 +235,11 @@ class RegisterController: UIViewController {
         view.addSubview(nameTextField)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
-        view.addSubview(signUpButton)
-        signUpButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(signupButton)
+        nameTextField.translatesAutoresizingMaskIntoConstraints = false
+        emailTextField.translatesAutoresizingMaskIntoConstraints = false
+        passwordTextField.translatesAutoresizingMaskIntoConstraints = false
+        
         
         
         NSLayoutConstraint.activate([
@@ -198,11 +280,12 @@ class RegisterController: UIViewController {
             passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             passwordTextField.heightAnchor.constraint(equalToConstant: 50),
+            
+            signupButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
+            signupButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            signupButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            signupButton.heightAnchor.constraint(equalToConstant: 50)
                         
-            signUpButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 20),
-            signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-            signUpButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     

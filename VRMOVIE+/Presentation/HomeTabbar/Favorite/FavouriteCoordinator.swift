@@ -24,6 +24,13 @@ final class FavoriteCoordinator: Coordinator {
 }
 
 extension FavoriteCoordinator: FavoriteNavigation, HomeNavigation {
+    func navigateToMenu() {
+        
+        let homeVM = HomeViewModel(navigation: self)
+        let homeVC = HomeViewController(viewModel: homeVM)
+        navigationController.pushViewController(homeVC, animated: true)
+    }
+        
     func showDetails(mediaType: MediaType, id: Int) {
         let vc = MovieDetailController(viewModel: .init(mediaType: mediaType, id: id, navigation: self))
         vc.hidesBottomBarWhenPushed = true
