@@ -31,6 +31,16 @@ final class AuthCoordinator: Coordinator {
 }
 
 extension AuthCoordinator: AuthNavigation {
+    func showLogin(withEmail email: String?) {
+        let loginViewModel = LoginViewModel(navigation: self)
+            // LoginController-da e-maili doldurmaq üçün ViewModel-də saxlayırıq
+        loginViewModel.prefilledEmail = email
+            
+        let loginVC = LoginController(viewModel: loginViewModel)
+        showController(vc: loginVC)
+        deletePreviousController() // Köhnə RegisterController-ı silmək üçün
+    }
+    
     func showRegister() {
         let viewModel = RegisterViewModel(navigation: self)
         let registerVC = RegisterController(viewModel: viewModel)

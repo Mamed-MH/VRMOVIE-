@@ -85,6 +85,8 @@
 		817E17D72D5DD22800C2F99A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 817E17B72D5DD22800C2F99A /* LaunchScreen.storyboard */; };
 		817E18D72D5DDBFA00C2F99A /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 817E18D62D5DDBFA00C2F99A /* SDWebImage */; };
 		819D39B32D7AE6B400EBC27D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 819D39B22D7AE6B300EBC27D /* GoogleService-Info.plist */; };
+		819D39B72D81EB6700EBC27D /* CoreMockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819D39B62D81EB6100EBC27D /* CoreMockManager.swift */; };
+		819D39BB2D81EDA400EBC27D /* MovieLists.json in Sources */ = {isa = PBXBuildFile; fileRef = 819D39BA2D81ED9A00EBC27D /* MovieLists.json */; };
 		81A0ACE82D5E690C005C0BDC /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 81A0ACE72D5E690C005C0BDC /* FirebaseAnalytics */; };
 		81A0ACEA2D5E690C005C0BDC /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A0ACE92D5E690C005C0BDC /* FirebaseAuth */; };
 		81A0ACEC2D5E690C005C0BDC /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A0ACEB2D5E690C005C0BDC /* FirebaseCore */; };
@@ -192,6 +194,8 @@
 		817E17B62D5DD22800C2F99A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		817E17B92D5DD22800C2F99A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		819D39B22D7AE6B300EBC27D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		819D39B62D81EB6100EBC27D /* CoreMockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMockManager.swift; sourceTree = "<group>"; };
+		819D39BA2D81ED9A00EBC27D /* MovieLists.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MovieLists.json; sourceTree = "<group>"; };
 		81A0ACEF2D5F26B2005C0BDC /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		81A0ACF02D5F26B2005C0BDC /* LayoutExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutExtension.swift; sourceTree = "<group>"; };
 		81A0ACF22D5F26B2005C0BDC /* CoreAPIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAPIHelper.swift; sourceTree = "<group>"; };
@@ -570,6 +574,22 @@
 			path = "VRMOVIE+";
 			sourceTree = "<group>";
 		};
+		819D39B82D81ED0300EBC27D /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				819D39B92D81ED0C00EBC27D /* MovieLists */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		819D39B92D81ED0C00EBC27D /* MovieLists */ = {
+			isa = PBXGroup;
+			children = (
+				819D39BA2D81ED9A00EBC27D /* MovieLists.json */,
+			);
+			path = MovieLists;
+			sourceTree = "<group>";
+		};
 		81A0ACF12D5F26B2005C0BDC /* Helper */ = {
 			isa = PBXGroup;
 			children = (
@@ -584,6 +604,7 @@
 		81A0ACF52D5F26B2005C0BDC /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				819D39B62D81EB6100EBC27D /* CoreMockManager.swift */,
 				81A0ACF22D5F26B2005C0BDC /* CoreAPIHelper.swift */,
 				81A0ACF32D5F26B2005C0BDC /* CoreAPIManager.swift */,
 				81A0ACF42D5F26B2005C0BDC /* CoreErrorModel.swift */,
@@ -594,6 +615,7 @@
 		81A0ACF62D5F26B2005C0BDC /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				819D39B82D81ED0300EBC27D /* Mocks */,
 				815A67B72D64EC7600DBF194 /* MovieLists */,
 				815A67B02D64EBDD00DBF194 /* TvShowDetail */,
 				815A67A92D64EB6500DBF194 /* MovieDetail */,
@@ -921,9 +943,11 @@
 				815A67CC2D662FEC00DBF194 /* TrendingTvShowDTO.swift in Sources */,
 				810988582D648C7600E08F94 /* TrendingTitleCell.swift in Sources */,
 				815A67E82D69BA3000DBF194 /* MovieDetailDTO.swift in Sources */,
+				819D39B72D81EB6700EBC27D /* CoreMockManager.swift in Sources */,
 				8155CDE62D6CAF47001C6EEB /* SearchCoordinator.swift in Sources */,
 				815A67EA2D69BA4F00DBF194 /* TvShowDetailDTO.swift in Sources */,
 				81A0AD2D2D5F26B2005C0BDC /* BaseViewController.swift in Sources */,
+				819D39BB2D81EDA400EBC27D /* MovieLists.json in Sources */,
 				8155CDE42D6CAF33001C6EEB /* SearchNavigation.swift in Sources */,
 				8155CDF52D6CB2CE001C6EEB /* UserDataModel.swift in Sources */,
 				815A67EC2D69BA7D00DBF194 /* TvShowDetailProtocol.swift in Sources */,

@@ -13,4 +13,5 @@ protocol AuthNavigation: AnyObject {
     func popbackScreen()
     func showHomeScreen()
     func showRegister()
+    func showLogin(withEmail email: String?)
 }

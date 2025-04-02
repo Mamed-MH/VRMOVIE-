@@ -118,42 +118,41 @@ final class LoginController: BaseViewController {
         configureConstaints()
         configureViewModel()
         
-        
+        emailTextField.text = viewModel.prefilledEmail
     }
     
     private func configureViewModel() {
         viewModel.loginSuccessCallback = { [weak self] in
                 guard let self = self else { return }
-                DispatchQueue.main.async { // ✅ `DispactionName` əvəzinə `DispatchQueue`
+                DispatchQueue.main.async {
                     let alert = UIAlertController(
                         title: "Uğurlu Giriş!",
                         message: "Siz uğurlu daxil oldunuz.",
-                        preferredStyle: .alert // ✅ `.alert` istifadə edin
+                        preferredStyle: .alert
                     )
                     let okAction = UIAlertAction(title: "OK", style: .default) { _ in
-                        self.navigateToMenu() // ✅ Düzgün funksiya adı
+                        self.navigateToMenu()
                     }
-                    alert.addAction(okAction) // ✅ `addaction` əvəzinə `addAction`
-                    self.present(alert, animated: true) // ✅ `minintest` əvəzinə `animated`
+                    alert.addAction(okAction)
+                    self.present(alert, animated: true)
             }
         }
 
     }
     
     func navigateToMenu() {
-        
-        
-        
+        viewModel.startHomeScreen()
     }
     
     
     @objc private func loginButtonClicked() {
         guard
-            let email = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), // ✅ `.whitespacesAndNewlines`
+            let email = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
             let password = passwordTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
         else { return }
         
         if checkInput(email: email, password: password) {
+            logUserIn()
         } else {
             showMessage(title: "Xəta", message: "Email və ya Şifrə yanlışdır")
         }

@@ -11,6 +11,7 @@ import UIKit
 final class LoginViewModel {
     
     var loginSuccessCallback: (() -> Void)?
+    var prefilledEmail: String?
     
     enum ViewState {
         case loading
@@ -40,7 +41,6 @@ final class LoginViewModel {
             guard let self = self else { return }
             self.requestCallback?(.loaded)
             DispatchQueue.main.async {
-                self.loginSuccessCallback?()
                 if let dto = dto {
                     self.tokenCredentials = dto.mapToDomain()
                     print(self.tokenCredentials!)
@@ -51,6 +51,7 @@ final class LoginViewModel {
                     self.requestCallback?(.error(message: error))
                 }
             }
+
         }
     }
     

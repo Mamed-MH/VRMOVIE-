@@ -191,8 +191,8 @@ class RegisterController: BaseViewController {
     }
     
     func navigateToLoginController() {
-
-        
+           let email = emailTextField.text
+           viewModel.navigation?.showLogin(withEmail: email)
     }
 
     

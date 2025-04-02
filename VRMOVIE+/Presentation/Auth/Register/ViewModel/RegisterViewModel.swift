@@ -16,10 +16,11 @@ final class RegisterViewModel {
     }
      
     var requestCallback : ((ViewState) -> Void?)?
-    private weak var navigation: AuthNavigation?
+    public let navigation: AuthCoordinator?
+
         
     init(navigation: AuthNavigation) {
-        self.navigation = navigation
+        self.navigation = navigation as? AuthCoordinator
     }
     
     func createUser(email: String, password: String, username: String) {
